@@ -1,6 +1,8 @@
 import { alpha, createTheme, lighten, darken } from '@mui/material';
 import '@mui/lab/themeAugmentation';
 
+function createPureTheme(mode: 'light' | 'dark') {
+const dark = mode === 'dark';
 const themeColors = {
   primary: '#5569ff',
   secondary: '#6E759F',
@@ -8,8 +10,8 @@ const themeColors = {
   warning: '#FFA319',
   error: '#FF1943',
   info: '#33C2FF',
-  black: '#223354',
-  white: '#ffffff',
+  black: dark ? '#CBCCD2' : '#223354',
+  white: dark ? '#111633' : '#ffffff',
   primaryAlt: '#000C57'
 };
 
@@ -50,16 +52,16 @@ const colors = {
   },
   layout: {
     general: {
-      bodyBg: '#f2f5f9'
+      bodyBg: dark ? '#070C27' : '#f2f5f9'
     },
     sidebar: {
       background: themeColors.white,
       textColor: themeColors.secondary,
-      dividerBg: '#f2f5f9',
-      menuItemColor: '#242E6F',
+      dividerBg: dark ? '#252C48' : '#f2f5f9',
+      menuItemColor: dark ? '#CBCCD2' : '#242E6F',
       menuItemColorActive: themeColors.primary,
       menuItemBg: themeColors.white,
-      menuItemBgActive: '#f2f5f9',
+      menuItemBgActive: dark ? '#070C27' : '#f2f5f9',
       menuItemIconColor: lighten(themeColors.secondary, 0.3),
       menuItemIconColorActive: themeColors.primary,
       menuItemHeadingColor: darken(themeColors.secondary, 0.3)
@@ -75,12 +77,12 @@ const colors = {
       100: themeColors.white
     },
     trueWhite: {
-      5: alpha(themeColors.white, 0.02),
-      10: alpha(themeColors.white, 0.1),
-      30: alpha(themeColors.white, 0.3),
-      50: alpha(themeColors.white, 0.5),
-      70: alpha(themeColors.white, 0.7),
-      100: themeColors.white
+      5: alpha('#ffffff', 0.02),
+      10: alpha('#ffffff', 0.1),
+      30: alpha('#ffffff', 0.3),
+      50: alpha('#ffffff', 0.5),
+      70: alpha('#ffffff', 0.7),
+      100: '#ffffff'
     },
     black: {
       5: alpha(themeColors.black, 0.02),
@@ -129,7 +131,7 @@ const colors = {
   }
 };
 
-export const PureLightTheme = createTheme({
+return createTheme({
   // direction: i18n.dir(),
   colors: {
     gradients: {
@@ -167,12 +169,12 @@ export const PureLightTheme = createTheme({
         100: themeColors.white
       },
       trueWhite: {
-        5: alpha(themeColors.white, 0.02),
-        10: alpha(themeColors.white, 0.1),
-        30: alpha(themeColors.white, 0.3),
-        50: alpha(themeColors.white, 0.5),
-        70: alpha(themeColors.white, 0.7),
-        100: themeColors.white
+        5: alpha('#ffffff', 0.02),
+        10: alpha('#ffffff', 0.1),
+        30: alpha('#ffffff', 0.3),
+        50: alpha('#ffffff', 0.5),
+        70: alpha('#ffffff', 0.7),
+        100: '#ffffff'
       },
       black: {
         5: alpha(themeColors.black, 0.02),
@@ -254,7 +256,7 @@ export const PureLightTheme = createTheme({
       black: colors.alpha.black[100],
       white: colors.alpha.white[100]
     },
-    mode: 'light',
+    mode,
     primary: {
       light: colors.primary.light,
       main: colors.primary.main,
@@ -269,25 +271,25 @@ export const PureLightTheme = createTheme({
       light: colors.error.light,
       main: colors.error.main,
       dark: colors.error.dark,
-      contrastText: colors.alpha.white[100]
+      contrastText: colors.alpha.trueWhite[100]
     },
     success: {
       light: colors.success.light,
       main: colors.success.main,
       dark: colors.success.dark,
-      contrastText: colors.alpha.white[100]
+      contrastText: colors.alpha.trueWhite[100]
     },
     info: {
       light: colors.info.light,
       main: colors.info.main,
       dark: colors.info.dark,
-      contrastText: colors.alpha.white[100]
+      contrastText: colors.alpha.trueWhite[100]
     },
     warning: {
       light: colors.warning.light,
       main: colors.warning.main,
       dark: colors.warning.dark,
-      contrastText: colors.alpha.white[100]
+      contrastText: colors.alpha.trueWhite[100]
     },
     text: {
       primary: colors.alpha.black[100],
@@ -1181,3 +1183,7 @@ export const PureLightTheme = createTheme({
     'none'
   ]
 });
+}
+
+export const PureLightTheme = createPureTheme('light');
+export const PureDarkTheme = createPureTheme('dark');

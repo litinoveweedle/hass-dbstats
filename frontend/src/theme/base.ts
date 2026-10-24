@@ -1,7 +1,7 @@
 import type React from 'react';
 
 import type { Theme as ITheme } from '@mui/material';
-import { PureLightTheme } from './schemes/PureLightTheme';
+import { PureLightTheme, PureDarkTheme } from './schemes/PureLightTheme';
 
 declare module '@mui/material/styles' {
   interface Theme {
@@ -245,9 +245,10 @@ declare module '@mui/material/styles' {
 }
 
 const themeMap: { [key: string]: ITheme } = {
-  PureLightTheme
+  PureLightTheme,
+  PureDarkTheme
 };
 
 export function themeCreator(theme: string): ITheme {
-  return themeMap[theme];
+  return themeMap[theme] ?? PureLightTheme;
 }

@@ -2,13 +2,57 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { json, urlencoded } from 'express';
+import { json, urlencoded, static as serveStatic } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import configProvider from './config';
 import { version } from '../package.json';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('addon-api');
+  const basePath = (process.env.BASE_PATH ?? '')
+    .split('/')
+    .filter(Boolean)
+    .join('/');
+  const base = basePath ? `/${basePath}` : '';
+  const staticRoot = process.env.STATIC_ROOT ?? '/var/www/html';
+  app.setGlobalPrefix(`${base}/addon-api`);
+  if (base) {
+    // accept requests both with and without the base path (proxy may strip it)
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      if (
+        req.url !== base &&
+        !req.url.startsWith(`${base}/`) &&
+        !req.url.startsWith(`${base}?`)
+      ) {
+        req.url = base + (req.url === '/' ? '/' : req.url);
+      }
+      next();
+    });
+  }
+  const serveIndex = (_req: Request, res: Response) => {
+    const html = readFileSync(join(staticRoot, 'index.html'), 'utf8').replace(
+      /<base href="[^"]*"\s*\/?>/,
+      `<base href="${base}/" />`,
+    );
+    res.type('html').send(html);
+  };
+  const staticHandler = serveStatic(staticRoot, { index: false });
+  app.use(base || '/', (req: Request, res: Response, next: NextFunction) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return next();
+    }
+    if (req.path.startsWith('/addon-api') || req.path.startsWith('/api')) {
+      return next();
+    }
+    if (req.path === '/' || req.path === '/index.html') {
+      return serveIndex(req, res);
+    }
+    staticHandler(req, res, (err?: unknown) =>
+      err ? next(err) : serveIndex(req, res),
+    );
+  });
   app.use(json({ limit: '5mb' }));
   app.use(urlencoded({ extended: true, limit: '5mb' }));
   const config = new DocumentBuilder()
@@ -17,7 +61,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup(`${base}/api`, app, document);
 
   app.enableShutdownHooks();
   app.useGlobalPipes(

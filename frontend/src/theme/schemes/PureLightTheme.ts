@@ -4,16 +4,20 @@ import '@mui/lab/themeAugmentation';
 function createPureTheme(mode: 'light' | 'dark') {
 const dark = mode === 'dark';
 const themeColors = {
-  primary: '#5569ff',
-  secondary: '#6E759F',
+  primary: dark ? '#7C8CFF' : '#5569ff',
+  secondary: dark ? '#B4B9D6' : '#6E759F',
   success: '#57CA22',
   warning: '#FFA319',
   error: '#FF1943',
   info: '#33C2FF',
-  black: dark ? '#CBCCD2' : '#223354',
+  black: dark ? '#F2F3F7' : '#223354',
   white: dark ? '#111633' : '#ffffff',
   primaryAlt: '#000C57'
 };
+
+// dark variants get lighter in dark mode to keep contrast against dark surfaces
+const shade = (color: string, amount: number) =>
+  dark ? lighten(color, amount) : darken(color, amount);
 
 const colors = {
   gradients: {
@@ -58,7 +62,7 @@ const colors = {
       background: themeColors.white,
       textColor: themeColors.secondary,
       dividerBg: dark ? '#252C48' : '#f2f5f9',
-      menuItemColor: dark ? '#CBCCD2' : '#242E6F',
+      menuItemColor: dark ? '#F2F3F7' : '#242E6F',
       menuItemColorActive: themeColors.primary,
       menuItemBg: themeColors.white,
       menuItemBgActive: dark ? '#070C27' : '#f2f5f9',
@@ -97,37 +101,37 @@ const colors = {
     lighter: lighten(themeColors.secondary, 0.85),
     light: lighten(themeColors.secondary, 0.25),
     main: themeColors.secondary,
-    dark: darken(themeColors.secondary, 0.2)
+    dark: shade(themeColors.secondary, 0.2)
   },
   primary: {
     lighter: lighten(themeColors.primary, 0.85),
     light: lighten(themeColors.primary, 0.3),
     main: themeColors.primary,
-    dark: darken(themeColors.primary, 0.2)
+    dark: shade(themeColors.primary, 0.2)
   },
   success: {
     lighter: lighten(themeColors.success, 0.85),
     light: lighten(themeColors.success, 0.3),
     main: themeColors.success,
-    dark: darken(themeColors.success, 0.2)
+    dark: shade(themeColors.success, 0.2)
   },
   warning: {
     lighter: lighten(themeColors.warning, 0.85),
     light: lighten(themeColors.warning, 0.3),
     main: themeColors.warning,
-    dark: darken(themeColors.warning, 0.2)
+    dark: shade(themeColors.warning, 0.2)
   },
   error: {
     lighter: lighten(themeColors.error, 0.85),
     light: lighten(themeColors.error, 0.3),
     main: themeColors.error,
-    dark: darken(themeColors.error, 0.2)
+    dark: shade(themeColors.error, 0.2)
   },
   info: {
     lighter: lighten(themeColors.info, 0.85),
     light: lighten(themeColors.info, 0.3),
     main: themeColors.info,
-    dark: darken(themeColors.info, 0.2)
+    dark: shade(themeColors.info, 0.2)
   }
 };
 
@@ -189,37 +193,37 @@ return createTheme({
       lighter: alpha(themeColors.secondary, 0.1),
       light: lighten(themeColors.secondary, 0.3),
       main: themeColors.secondary,
-      dark: darken(themeColors.secondary, 0.2)
+      dark: shade(themeColors.secondary, 0.2)
     },
     primary: {
       lighter: alpha(themeColors.primary, 0.1),
       light: lighten(themeColors.primary, 0.3),
       main: themeColors.primary,
-      dark: darken(themeColors.primary, 0.2)
+      dark: shade(themeColors.primary, 0.2)
     },
     success: {
       lighter: alpha(themeColors.success, 0.1),
       light: lighten(themeColors.success, 0.3),
       main: themeColors.success,
-      dark: darken(themeColors.success, 0.2)
+      dark: shade(themeColors.success, 0.2)
     },
     warning: {
       lighter: alpha(themeColors.warning, 0.1),
       light: lighten(themeColors.warning, 0.3),
       main: themeColors.warning,
-      dark: darken(themeColors.warning, 0.2)
+      dark: shade(themeColors.warning, 0.2)
     },
     error: {
       lighter: alpha(themeColors.error, 0.1),
       light: lighten(themeColors.error, 0.3),
       main: themeColors.error,
-      dark: darken(themeColors.error, 0.2)
+      dark: shade(themeColors.error, 0.2)
     },
     info: {
       lighter: alpha(themeColors.info, 0.1),
       light: lighten(themeColors.info, 0.3),
       main: themeColors.info,
-      dark: darken(themeColors.info, 0.2)
+      dark: shade(themeColors.info, 0.2)
     }
   },
   general: {
@@ -260,7 +264,8 @@ return createTheme({
     primary: {
       light: colors.primary.light,
       main: colors.primary.main,
-      dark: colors.primary.dark
+      dark: colors.primary.dark,
+      contrastText: dark ? '#070C27' : '#ffffff'
     },
     secondary: {
       light: colors.secondary.light,

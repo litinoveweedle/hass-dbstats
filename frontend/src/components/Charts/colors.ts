@@ -2,6 +2,31 @@
 
 import {hsv2rgb, rgbString} from '@kurkle/color';
 
+const ALPHA = 192 / 255;
+const MIN_CONTRAST = 3;
+
+function luminance([r, g, b]: number[]): number {
+    const f = (v: number) => {
+        const c = v / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+function parseHex(hex: string): number[] {
+    const h = hex.replace('#', '');
+    const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+}
+
+// contrast of a bar (drawn with ALPHA over the background) against that background
+function contrastWithBackground(rgb: number[], bg: number[]): number {
+    const blended = rgb.map((v, i) => v * ALPHA + bg[i] * (1 - ALPHA));
+    const a = luminance(blended);
+    const b = luminance(bg);
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
 function* hueGen() {
     yield 0;
     while (true) {
@@ -14,17 +39,18 @@ function* hueGen() {
     }
 }
 
-function* colorGen(repeat = 1) {
+function* colorGen(bg: number[], repeat = 1) {
     const hue = hueGen();
     let h = hue.next();
     while (!h.done) {
-        let rgb = hsv2rgb(Math.round((h.value as number) * 360), 0.6, 0.8);
-        for (let i = 0; i < repeat; i++) {
-            yield {background: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 192}), border: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 144})};
-        }
-        rgb = hsv2rgb(Math.round((h.value as number) * 360), 0.6, 0.5);
-        for (let i = 0; i < repeat; i++) {
-            yield {background: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 192}), border: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 144})};
+        for (const value of [0.8, 0.5]) {
+            const rgb = hsv2rgb(Math.round((h.value as number) * 360), 0.6, value);
+            if (contrastWithBackground(rgb, bg) < MIN_CONTRAST) {
+                continue;
+            }
+            for (let i = 0; i < repeat; i++) {
+                yield {background: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 192}), border: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 144})};
+            }
         }
         h = hue.next();
     }
@@ -37,8 +63,8 @@ function getNext(color, customize, context) {
     return c;
 }
 
-export default (colorNum)=>{
-    const gen = colorGen();
+export default (colorNum: number, backgroundHex = '#ffffff')=>{
+    const gen = colorGen(parseHex(backgroundHex));
     const colors = [];
     while(colors.length<colorNum){
         const c = getNext(gen, null, {chart: null, datasetIndex: 0});

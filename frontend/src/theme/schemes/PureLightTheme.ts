@@ -5,13 +5,13 @@ function createPureTheme(mode: 'light' | 'dark') {
 const dark = mode === 'dark';
 const themeColors = {
   primary: dark ? '#7C8CFF' : '#5569ff',
-  secondary: dark ? '#B4B9D6' : '#6E759F',
+  secondary: dark ? '#B8B8B8' : '#6E759F',
   success: '#57CA22',
   warning: '#FFA319',
-  error: '#FF1943',
+  error: dark ? '#FF6B85' : '#FF1943',
   info: '#33C2FF',
-  black: dark ? '#F2F3F7' : '#223354',
-  white: dark ? '#111633' : '#ffffff',
+  black: dark ? '#EAEAEA' : '#223354',
+  white: dark ? '#252526' : '#ffffff',
   primaryAlt: '#000C57'
 };
 
@@ -56,19 +56,19 @@ const colors = {
   },
   layout: {
     general: {
-      bodyBg: dark ? '#070C27' : '#f2f5f9'
+      bodyBg: dark ? '#1E1E1E' : '#f2f5f9'
     },
     sidebar: {
       background: themeColors.white,
       textColor: themeColors.secondary,
-      dividerBg: dark ? '#252C48' : '#f2f5f9',
-      menuItemColor: dark ? '#F2F3F7' : '#242E6F',
+      dividerBg: dark ? '#3C3C3C' : '#f2f5f9',
+      menuItemColor: dark ? '#EAEAEA' : '#242E6F',
       menuItemColorActive: themeColors.primary,
       menuItemBg: themeColors.white,
-      menuItemBgActive: dark ? '#070C27' : '#f2f5f9',
+      menuItemBgActive: dark ? '#37373D' : '#f2f5f9',
       menuItemIconColor: lighten(themeColors.secondary, 0.3),
       menuItemIconColorActive: themeColors.primary,
-      menuItemHeadingColor: darken(themeColors.secondary, 0.3)
+      menuItemHeadingColor: dark ? themeColors.secondary : darken(themeColors.secondary, 0.3)
     }
   },
   alpha: {
@@ -265,7 +265,7 @@ return createTheme({
       light: colors.primary.light,
       main: colors.primary.main,
       dark: colors.primary.dark,
-      contrastText: dark ? '#070C27' : '#ffffff'
+      contrastText: dark ? '#1E1E1E' : '#ffffff'
     },
     secondary: {
       light: colors.secondary.light,

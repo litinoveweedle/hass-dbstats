@@ -2,7 +2,7 @@ import type {FC} from "react";
 import {useEffect} from "react";
 import * as React from "react";
 import Chart from "react-apexcharts";
-import {Alert} from "@mui/material";
+import {Alert, useTheme} from "@mui/material";
 import {SuspenseLoaderInline} from "../SuspenseLoader";
 import type {ICountStats} from "@dbstats/shared/src/stats";
 import type {ApexOptions} from "apexcharts";
@@ -24,7 +24,8 @@ function thousandFormatter(value: string): string {
 export const CountStatsChart: FC<CountStatesChartProps> = ({title, api}) => {
 
     const [loading, setLoading] = React.useState(true);
-    const [stats, setStats] = React.useState(null);
+    const [data, setStats] = React.useState<Array<ICountStats> | null>(null);
+    const theme = useTheme();
     const [errorMessageLoad, setErrorMessageLoad] = React.useState('');
 
 
@@ -32,16 +33,43 @@ export const CountStatsChart: FC<CountStatesChartProps> = ({title, api}) => {
 
         const fetchData = async () => {
             setLoading(true);
-            const data = await api();
+            const result = await api();
 
-            const state: { options: ApexOptions, series: ApexAxisChartSeries } = {
+            setStats(result);
+            setLoading(false);
+        }
+        fetchData()
+            // make sure to catch any error
+            .catch((err) => setErrorMessageLoad(err.message));
+    }
+
+    useEffect(loadStats, []);
+    useEffect(() => {
+        loadStats();
+    }, []);
+    if (errorMessageLoad) {
+        return (
+            <Alert style={{marginTop: 25}} severity="error">{errorMessageLoad}</Alert>)
+    }
+    if (loading) {
+        return <SuspenseLoaderInline success={false}></SuspenseLoaderInline>;
+    }
+
+
+    const state: { options: ApexOptions, series: ApexAxisChartSeries } = {
                 options: {
-                    colors: colors(data.length),
+                    colors: colors(data.length, theme.palette.background.paper),
                     legend: {
                         show: false,
                     },
-                    title: {text: title, align: "center"},
-                    chart: {},
+                    title: {text: title, align: "center", style: {color: theme.palette.text.primary}},
+                    theme: {mode: theme.palette.mode},
+                    chart: {
+                        background: 'transparent',
+                        foreColor: theme.palette.text.primary,
+                    },
+                    grid: {borderColor: theme.palette.divider},
+                    tooltip: {theme: theme.palette.mode},
                     plotOptions: {
                         bar: {
                             distributed: true,
@@ -81,33 +109,14 @@ export const CountStatsChart: FC<CountStatesChartProps> = ({title, api}) => {
                     }
                 ]
             };
-            setStats(state);
-            setLoading(false);
-        }
-        fetchData()
-            // make sure to catch any error
-            .catch((err) => setErrorMessageLoad(err.message));
-    }
-
-    useEffect(loadStats, []);
-    useEffect(() => {
-        loadStats();
-    }, []);
-    if (errorMessageLoad) {
-        return (
-            <Alert style={{marginTop: 25}} severity="error">{errorMessageLoad}</Alert>)
-    }
-    if (loading) {
-        return <SuspenseLoaderInline success={false}></SuspenseLoaderInline>;
-    }
 
     return (
         <Chart style={{marginTop: 25}}
-               options={stats.options}
-               series={stats.series}
+               options={state.options}
+               series={state.series}
                type="bar"
                width="100%"
-               height={stats.series[0].data.length * 45}
+               height={state.series[0].data.length * 45}
         />
     );
 }

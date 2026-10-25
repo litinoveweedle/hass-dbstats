@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Outlet } from 'react-router-dom';
 
 import { Box } from '@mui/material';
+import ThemeToggle from 'src/components/ThemeToggle';
 
 interface BaseLayoutProps {
   children?: ReactNode;
@@ -16,6 +17,7 @@ const BaseLayout: FC<BaseLayoutProps> = ({ children }) => {
         height: '100%'
       }}
     >
+      <ThemeToggle />
       {children || <Outlet />}
     </Box>
   );
